@@ -13,9 +13,6 @@ def search_for_item(browser, item_string, quantity):
     browser.get('https://www.instacart.com/store/aldi/search_v3/{}'.format(
         item_string.replace(r'%', r'%25').replace(',', r'%2C').replace(' ', r'%20')))
 
-    # Wait for browser to load
-    sleep(20)
-
     browser.find_element_by_xpath(
         '//button[@aria-label="Add 1 unit of {}"]'.format(item_string)).click()
 
@@ -31,15 +28,13 @@ def build_cart(shopping_list):
         opts.set_headless()
 
     browser = Chrome(options=opts)
+    browser.implicitly_wait(30)
     browser.get('https://www.instacart.com/store/home')
-    sleep(5)
 
     # Log in
     browser.find_element_by_xpath('//button[text()="Log in"]').click()
-    sleep(5)
     browser.find_element_by_xpath(
         '//button[text()="Continue with Google"]').click()
-    sleep(5)
 
     # Get credentials
     with open('instacart_credentials.json') as f:
@@ -77,7 +72,6 @@ def build_cart(shopping_list):
         '//button[text()="Remove"]')
     for remove_button in remove_buttons:
         remove_button.click()
-        sleep(1)
 
     for item in shopping_list:
         search_for_item(browser, item.name, item.quantity)
