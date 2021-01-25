@@ -1,0 +1,26 @@
+<html>
+
+<head>
+    <title>Ingredients</title>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <th>Ingredient Name</th>
+            <th>Search Text</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+        </tr>
+        {% for ingredient in ingredients %}
+        <tr>
+            <td>{{ ingredient.name }}</td>
+            <td>{{ ingredient.search }}</td>
+            <td>{{ ingredient.quantity }}</td>
+            <td>{{ ingredient.unit }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>

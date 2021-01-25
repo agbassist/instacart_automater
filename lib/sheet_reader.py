@@ -1,10 +1,10 @@
 import gspread
-from ingredient import Ingredient
+from lib.ingredient import Ingredient
 
 
 class SheetReader:
 
-    def __init__(self, credentials='google_credentials.json', spreadsheet_name='Copy of Grocery Shopping'):
+    def __init__(self, credentials='credentials/google_credentials.json', spreadsheet_name='Copy of Grocery Shopping'):
         self._gc = gspread.service_account(credentials)
         self._spread_sheet = self._gc.open(spreadsheet_name)
         self._ingredients = []
@@ -126,3 +126,19 @@ class SheetReader:
 
         # return a set to remove duplicates
         return(set(new_ingredients))
+
+    def get_rows(self):
+        worksheet = self._spread_sheet.worksheet('Ingredients')
+        return worksheet.get_all_values()[1:]
+
+
+if __name__ == '__main__':
+
+    from database import Database
+
+    sheetreader = SheetReader()
+    rows = sheetreader.get_rows()
+
+    database = Database()
+    for row in rows:
+        database.add_ingredient(row[0], row[1], row[2], row[3])

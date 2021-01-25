@@ -1,0 +1,6 @@
+venv/
+*/__pycache__/*
+credentials/
+database/
+.vscode/
+output/

@@ -1,7 +1,7 @@
 from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from time import sleep
-from ingredient import Ingredient
+from lib.ingredient import Ingredient
 import json
 
 
@@ -37,7 +37,7 @@ def build_cart(shopping_list):
         '//button[text()="Continue with Google"]').click()
 
     # Get credentials
-    with open('instacart_credentials.json') as f:
+    with open('credentials/instacart_credentials.json') as f:
         data = json.load(f)
 
     username = data['username']
