@@ -1,5 +1,5 @@
 import gspread
-from lib.ingredient import Ingredient
+from ingredient import Ingredient
 
 
 class SheetReader:
@@ -127,18 +127,35 @@ class SheetReader:
         # return a set to remove duplicates
         return(set(new_ingredients))
 
-    def get_rows(self):
+    def get_ingredients(self):
         worksheet = self._spread_sheet.worksheet('Ingredients')
         return worksheet.get_all_values()[1:]
 
+    def get_recipe_ingredients(self,recipe):
+        worksheet = self._spread_sheet.worksheet(recipe)
+        return worksheet.get_all_values()[2:]
+
+    def get_recipes( self ):
+        worksheet = self._spread_sheet.worksheet('Menu')
+        values = worksheet.col_values(1)
+        return values[values.index('Recipes')+1:]
+        
 
 if __name__ == '__main__':
 
     from database import Database
 
     sheetreader = SheetReader()
-    rows = sheetreader.get_rows()
+    recipes = sheetreader.get_recipes()
 
     database = Database()
-    for row in rows:
-        database.add_ingredient(row[0], row[1], row[2], row[3])
+    for recipe in recipes:
+        database.add_recipe( recipe )
+        ingredients = sheetreader.get_recipe_ingredients( recipe )
+        recipe_id = database.get_recipe_id( recipe )
+
+        for ingredient in ingredients:
+            ingredient_id = database.get_ingredient_id( ingredient[0] )
+            quantity = ingredient[1]
+            unit = ingredient[2]
+            database.add_recipe_item( recipe_id, ingredient_id, quantity,unit)

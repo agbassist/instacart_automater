@@ -1,0 +1,14 @@
+<html>
+    <head>
+      {% if title %}
+      <title>{{ title }} - Instacart Recipes</title>
+      {% else %}
+      <title>Welcome to Instacart Recipes</title>
+      {% endif %}
+    </head>
+    <body>
+        <div>Instacart Recipes: <a href="/index">Home</a></div>
+        <hr>
+        {% block content %}{% endblock %}
+    </body>
+</html>
