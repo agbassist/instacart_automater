@@ -2,6 +2,17 @@
 
 {% block content %}
 
+<div>
+    <form action="" method="post" novalidate >
+        {{ form.hidden_tag() }}
+        <div>Name: {{ form.name(size=32) }}</div>
+        <div>Search: {{ form.search(size=32) }}</div>
+        <div>Quantity: {{ form.quantity(size=32) }}</div>
+        <div>Unit: {{ form.unit(size=32) }}</div>
+        <div>{{ form.submit() }}</div>
+    </form>
+</div>
+
 <table>
     <tr>
         <th>Ingredient Name</th>
