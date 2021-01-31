@@ -26,6 +26,7 @@
         <td>{{ ingredient.search }}</td>
         <td>{{ ingredient.quantity }}</td>
         <td>{{ ingredient.unit }}</td>
+        <td><form action="/delete_ingredient/id/{{ ingredient.id }}" method="post" novalidate >{{ delete.submit() }}</form></td>
     </tr>
     {% endfor %}
 </table>

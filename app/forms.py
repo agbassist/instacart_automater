@@ -8,3 +8,6 @@ class new_ingredient_form( FlaskForm ):
     quantity = IntegerField( 'Quantity', validators=[DataRequired()] )
     unit = StringField( 'Unit', validators=[DataRequired()] )
     submit = SubmitField( 'Add Ingredient' )
+
+class delete_ingredient_form( FlaskForm ):
+    submit = SubmitField( 'Delete' )

@@ -51,9 +51,9 @@ class Database:
             c.execute(sql, (name, search, quantity, unit))
             self.conn.commit()
         except Error as e:
-            print('"{}" - {}'.format(name, e))
+            print( '"{}" - {}'.format( name, e ) )
 
-    def select_all_ingredients(self):
+    def get_all_ingredients(self):
         cur = self.conn.cursor()
         cur.execute("SELECT * FROM ingredients")
 
@@ -63,6 +63,14 @@ class Database:
         cur = self.conn.cursor()
         cur.execute('SELECT id FROM ingredients WHERE name="{}"'.format(ingredient))
         return cur.fetchall()[0][0]
+
+    def delete_ingredient_by_id( self, id ):
+        try:
+            cur = self.conn.cursor()
+            cur.execute( 'DELETE FROM ingredients WHERE id={}'.format( id ) ) 
+            self.conn.commit()
+        except Error as e:
+            print( '"{}" - {}'.format( name, e ) )
 
     def add_recipe(self, name ):
         sql = ''' INSERT INTO recipes(name)

@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template, redirect, url_for
 from app import app
 from lib.database import Database
-from app.forms import new_ingredient_form
+from app.forms import new_ingredient_form, delete_ingredient_form
 import os
 
 @app.context_processor
@@ -28,23 +28,33 @@ def ingredients():
 
     database = Database()
     form = new_ingredient_form()
-    
+    delete = delete_ingredient_form()
+
     if form.validate_on_submit():
         database.add_ingredient( form.data['name'], form.data['search'], form.data['quantity'], form.data['unit'] )
         return redirect( '/ingredients' )
     
-    database_ingredients = database.select_all_ingredients()
+    database_ingredients = database.get_all_ingredients()
     ingredients = []
 
     for ingredient in database_ingredients:
         row = {}
+        row['id'] = ingredient[0]
         row['name'] = ingredient[1]
         row['search'] = ingredient[2]
         row['quantity'] = ingredient[3]
         row['unit'] = ingredient[4]
         ingredients.append(row)
     
-    return render_template( 'ingredient_list.html', title='Ingredients', ingredients=ingredients, form=form )
+    return render_template( 'ingredient_list.html', title='Ingredients', ingredients=ingredients, form=form, delete=delete )
+
+@app.route( '/delete_ingredient/id/<id>', methods=['POST'] )
+def delete_ingredient( id ):
+    
+    database = Database()
+    database.delete_ingredient_by_id( id )
+    
+    return redirect( '/ingredients' )
 
 @app.route('/recipes')
 def recipes():
@@ -62,7 +72,7 @@ def recipes():
     return render_template( 'recipe_list.html', recipes=recipes )
 
 @app.route('/recipe_id=<id>')
-def recipe_id(id):
+def recipe_id( id ):
     database = Database()
     database_ingredients = database.get_items_for_recipe( id )
     ingredients = []
