@@ -2,6 +2,15 @@
 
 {% block content %}
 
+<b>Add Ingredient</b>
+<form action="" method="post" novalidate >
+    {{ new_ingredient.hidden_tag() }}
+    <div>{{ new_ingredient.select }}</div>
+    <div>Quanity: {{ new_ingredient.quantity }}</div>
+    <div>Unit: {{ new_ingredient.unit }}</div>
+    <div>{{ new_ingredient.submit }}</div>
+</form>
+
 <table>
     <tr>
         <th>Ingredient</th>

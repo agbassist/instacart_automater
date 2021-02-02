@@ -1,5 +1,5 @@
 import gspread
-from ingredient import Ingredient
+from lib.ingredient import Ingredient
 
 
 class SheetReader:

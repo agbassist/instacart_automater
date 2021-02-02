@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template, redirect, url_for
 from app import app
 from lib.database import Database
-from app.forms import new_ingredient_form, delete_ingredient_form
+from app.forms import new_ingredient_form, delete_ingredient_form, add_to_recipe_form
 import os
 
 @app.context_processor
@@ -71,9 +71,19 @@ def recipes():
 
     return render_template( 'recipe_list.html', recipes=recipes )
 
-@app.route('/recipe_id=<id>')
+@app.route( '/recipe/id/<id>', methods=['GET', 'POST'] )
 def recipe_id( id ):
+
     database = Database()
+
+    # Get all ingredients
+    form = add_to_recipe_form()
+    form.select.choices = [ ( 0, '- Select Ingredient -' ) ] + database.get_all_ingredient_names()
+    if form.validate_on_submit():
+        database.add_recipe_item( id, int(form.data['select']), form.data['quantity'], form.data['unit'] )
+        return redirect( '/recipe/id/{}'.format( id ) )    
+
+    # Get ingredients for the recipe
     database_ingredients = database.get_items_for_recipe( id )
     ingredients = []
 
@@ -84,4 +94,5 @@ def recipe_id( id ):
         row['unit'] = ingredient[2]
         ingredients.append(row)
 
-    return render_template( 'recipe.html', ingredients=ingredients )
+    return render_template( 'recipe.html', ingredients=ingredients, new_ingredient=form )
+    

@@ -17,6 +17,7 @@ create_recipes_table = """CREATE TABLE IF NOT EXISTS recipes (
                                 );"""
 
 create_recipe_items_table = """CREATE TABLE IF NOT EXISTS recipe_items (
+                                    id          integer  NOT NULL PRIMARY KEY,
                                     recipe      integer  NOT NULL,
                                     ingredient  integer  NOT NULL,
                                     quantity    integer,
@@ -36,12 +37,16 @@ class Database:
         except Error as e:
             print(e)
 
-    def execute(self, sql_str):
+    def execute( self, sql_str, args=None ):
         try:
             c = self.conn.cursor()
-            c.execute(sql_str)
+            if args is None:
+                c.execute( sql_str )
+            else:
+                c.execute( sql_str, args )
+            self.conn.commit()
         except Error as e:
-            print(e)
+            print( e )
 
     def add_ingredient(self, name, search, quantity, unit):
         sql = ''' INSERT INTO ingredients(name,search,quantity,unit)
@@ -56,6 +61,12 @@ class Database:
     def get_all_ingredients(self):
         cur = self.conn.cursor()
         cur.execute("SELECT * FROM ingredients")
+
+        return cur.fetchall()
+
+    def get_all_ingredient_names(self):
+        cur = self.conn.cursor()
+        cur.execute("SELECT id, name FROM ingredients")
 
         return cur.fetchall()
 
@@ -126,30 +137,4 @@ class Database:
 if __name__ == '__main__':
 
     database = Database()
-
-    print( database.get_all_recipes() )
-    quit()
-
-    # Create tables
-    if False:
-        database.execute(create_ingredients_table)
-        database.execute(create_recipes_table)
-        database.execute(create_recipe_items_table)
-
-    #database.add_recipe('Jumbalaya')
-    #print( database.select_all_ingredients() )
-    #print( database.select_all_recipes() )
-
-    from sheet_reader import SheetReader
-
-    sheet_reader = SheetReader()
-    recipe_ingredients = sheet_reader.get_recipe_ingredients('Jumbalaya')
-    #print( recipe_ingredients )
-    
-    recipe_id = database.get_recipe_id('Jumbalaya')
-
-    for recipe_ingredient in recipe_ingredients:
-        ingredient_id = database.get_ingredient_id(recipe_ingredient[0])
-        quantity = recipe_ingredient[1]
-        unit = recipe_ingredient[2]
-        database.add_recipe_item( recipe_id, ingredient_id, quantity,unit)
+    database.execute( 'DROP TABLE temp;' )
