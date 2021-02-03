@@ -29,15 +29,16 @@ create_recipe_items_table = """CREATE TABLE IF NOT EXISTS recipe_items (
 
 class Database:
 
-    def __init__(self):
+    def __init__( self ):
         """ create a database connection to a SQLite database """
         self.conn = None
         try:
             self.conn = sqlite3.connect(db_file)
         except Error as e:
-            print(e)
+            print( e )
 
     def execute( self, sql_str, args=None ):
+        """ commit data to database """
         try:
             c = self.conn.cursor()
             if args is None:
@@ -48,98 +49,79 @@ class Database:
         except Error as e:
             print( e )
 
-    def add_ingredient(self, name, search, quantity, unit):
+    def fetch( self, sql_str ): 
+        """ retrieve from database """ 
+        try:
+            c = self.conn.cursor()
+            c.execute( sql_str )
+            return c.fetchall()
+        except Error as e:
+            print( e )            
+
+    #######################################################
+    #                     Ingredients
+    #######################################################
+
+    def add_ingredient( self, name, search, quantity, unit ):
         sql = ''' INSERT INTO ingredients(name,search,quantity,unit)
                   VALUES(?,?,?,?) '''
-        try:
-            c = self.conn.cursor()
-            c.execute(sql, (name, search, quantity, unit))
-            self.conn.commit()
-        except Error as e:
-            print( '"{}" - {}'.format( name, e ) )
+        self.execute( sql )
 
-    def get_all_ingredients(self):
-        cur = self.conn.cursor()
-        cur.execute("SELECT * FROM ingredients")
+    def get_all_ingredients( self ):
+        return self.fetch( 'SELECT * FROM ingredients' )
 
-        return cur.fetchall()
+    def get_all_ingredient_names( self ):
+        return self.fetch( 'SELECT id, name FROM ingredients' )
 
-    def get_all_ingredient_names(self):
-        cur = self.conn.cursor()
-        cur.execute("SELECT id, name FROM ingredients")
-
-        return cur.fetchall()
-
-    def get_ingredient_id(self,ingredient):
-        cur = self.conn.cursor()
-        cur.execute('SELECT id FROM ingredients WHERE name="{}"'.format(ingredient))
-        return cur.fetchall()[0][0]
+    def get_ingredient_id( self, ingredient ):
+        ret = self.fetch( 'SELECT id FROM ingredients WHERE name="{}"'.format( ingredient ) )
+        return ret[0][0]
 
     def delete_ingredient_by_id( self, id ):
-        try:
-            cur = self.conn.cursor()
-            cur.execute( 'DELETE FROM ingredients WHERE id={}'.format( id ) ) 
-            self.conn.commit()
-        except Error as e:
-            print( '"{}" - {}'.format( name, e ) )
+        self.execute( 'DELETE FROM ingredients WHERE id={}'.format( id ) )
 
-    def delete_recipe_item_by_id( self, id ):
-        try:
-            cur = self.conn.cursor()
-            cur.execute( 'DELETE FROM recipe_items WHERE id={}'.format( id ) ) 
-            self.conn.commit()
-        except Error as e:
-            print( '"{}" - {}'.format( name, e ) )
+    #######################################################
+    #                       Recipes
+    #######################################################
 
-    def add_recipe(self, name ):
+    def add_recipe( self, name ):
         sql = ''' INSERT INTO recipes(name)
                   VALUES(?) '''
-        try:
-            c = self.conn.cursor()
-            c.execute(sql, (name,))
-            self.conn.commit()
-        except Error as e:
-            print('"{}" - {}'.format(name, e))
+        self.execute( sql, (name,) )
 
-    def get_all_recipes(self):
-        cur = self.conn.cursor()
-        cur.execute("SELECT * FROM recipes")
+    def get_all_recipes( self ):
+        return self.fetch( 'SELECT * FROM recipes' )
 
-        return cur.fetchall()
+    def get_recipe_id( self, recipe ):
+        ret = self.fetch( 'SELECT id FROM recipes WHERE name="{}"'.format( recipe ) )
+        return ret[0][0]
 
-    def get_recipe_id(self,recipe):
-        cur = self.conn.cursor()
-        cur.execute('SELECT id FROM recipes WHERE name="{}"'.format(recipe))
-        return cur.fetchall()[0][0]
+    #######################################################
+    #                    Recipe Items
+    #######################################################
 
-    def add_recipe_item(self, recipe,ingredient,quantity,unit ):
+    def delete_recipe_item_by_id( self, id ):
+        self.execute( 'DELETE FROM recipe_items WHERE id={}'.format( id ) )
 
+    def add_recipe_item( self, recipe, ingredient, quantity, unit ):
         sql = ''' INSERT INTO recipe_items(recipe,ingredient,quantity,unit)
                   VALUES(?,?,?,?) '''
-        try:
-            c = self.conn.cursor()
-            c.execute(sql, (recipe,ingredient,quantity,unit))
-            self.conn.commit()
-        except Error as e:
-            print('"{}" - {}'.format(name, e))
+        self.execute( sql, (recipe,ingredient,quantity,unit) )
 
-    def get_items_for_recipe(self, recipe_id):
-        cur = self.conn.cursor()
-        cur.execute('''
-                    SELECT
-                    ingredients.name, recipe_items.quantity, recipe_items.unit, recipe_items.id
+    def get_items_for_recipe( self, recipe_id ):
+        sql = ''' SELECT
+                  ingredients.name, recipe_items.quantity, recipe_items.unit, recipe_items.id
 
-                    FROM
-                    recipe_items
-                    
-                    INNER JOIN ingredients ON recipe_items.ingredient = ingredients.id
-                    INNER JOIN recipes ON recipe_items.recipe = recipes.id
+                  FROM
+                  recipe_items
+                  
+                  INNER JOIN ingredients ON recipe_items.ingredient = ingredients.id
+                  INNER JOIN recipes ON recipe_items.recipe = recipes.id
 
-                    WHERE
-                    recipes.id = "{}"
+                  WHERE
+                  recipes.id = "{}";'''.format( recipe_id )
 
-                    ;'''.format( recipe_id ) )
-        return cur.fetchall()
+        return self.fetch( sql )
 
 # Temporary stuff and testing
 if __name__ == '__main__':
