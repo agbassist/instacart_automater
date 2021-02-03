@@ -56,6 +56,14 @@ def delete_ingredient( id ):
     
     return redirect( '/ingredients' )
 
+@app.route( '/delete_recipe_item_id=<id>,recipe=<recipe_id>', methods=['POST'] )
+def delete_recipe_item( id, recipe_id ):
+    
+    database = Database()
+    database.delete_recipe_item_by_id( id )
+    
+    return redirect( '/recipe/id/{}'.format( recipe_id ) )
+
 @app.route('/recipes')
 def recipes():
 
@@ -74,6 +82,9 @@ def recipes():
 @app.route( '/recipe/id/<id>', methods=['GET', 'POST'] )
 def recipe_id( id ):
 
+    delete = delete_ingredient_form()
+    delete.recipe_id.label = id
+
     database = Database()
 
     # Get all ingredients
@@ -81,18 +92,20 @@ def recipe_id( id ):
     form.select.choices = [ ( 0, '- Select Ingredient -' ) ] + database.get_all_ingredient_names()
     if form.validate_on_submit():
         database.add_recipe_item( id, int(form.data['select']), form.data['quantity'], form.data['unit'] )
-        return redirect( '/recipe/id/{}'.format( id ) )    
+        return redirect( '/recipe/id/{}'.format( id ) ) 
 
     # Get ingredients for the recipe
     database_ingredients = database.get_items_for_recipe( id )
     ingredients = []
+    delete_fields = []
 
     for ingredient in database_ingredients:
         row = {}
         row['name'] = ingredient[0]
         row['quantity'] = ingredient[1]
         row['unit'] = ingredient[2]
+        row['id'] = ingredient[3]
         ingredients.append(row)
 
-    return render_template( 'recipe.html', ingredients=ingredients, new_ingredient=form )
+    return render_template( 'recipe.html', ingredients=ingredients, new_ingredient=form, delete=delete )
     

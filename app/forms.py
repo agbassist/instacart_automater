@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, SelectField
+from wtforms import StringField, IntegerField, SubmitField, SelectField, HiddenField
 from wtforms.validators import DataRequired
 
 class new_ingredient_form( FlaskForm ):
@@ -11,6 +11,7 @@ class new_ingredient_form( FlaskForm ):
 
 class delete_ingredient_form( FlaskForm ):
     submit = SubmitField( 'Delete' )
+    recipe_id = HiddenField('Recipe_ID')
 
 class add_to_recipe_form( FlaskForm ):
     select = SelectField( 'Ingredient' )

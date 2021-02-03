@@ -83,6 +83,14 @@ class Database:
         except Error as e:
             print( '"{}" - {}'.format( name, e ) )
 
+    def delete_recipe_item_by_id( self, id ):
+        try:
+            cur = self.conn.cursor()
+            cur.execute( 'DELETE FROM recipe_items WHERE id={}'.format( id ) ) 
+            self.conn.commit()
+        except Error as e:
+            print( '"{}" - {}'.format( name, e ) )
+
     def add_recipe(self, name ):
         sql = ''' INSERT INTO recipes(name)
                   VALUES(?) '''
@@ -119,7 +127,7 @@ class Database:
         cur = self.conn.cursor()
         cur.execute('''
                     SELECT
-                    ingredients.name, recipe_items.quantity, recipe_items.unit
+                    ingredients.name, recipe_items.quantity, recipe_items.unit, recipe_items.id
 
                     FROM
                     recipe_items

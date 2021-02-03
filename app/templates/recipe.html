@@ -22,6 +22,12 @@
         <td>{{ ingredient.name }}</td>
         <td>{{ ingredient.quantity }}</td>
         <td>{{ ingredient.unit }}</td>
+        <td>
+            <form action="/delete_recipe_item_id={{ ingredient.id }},recipe={{ delete.recipe_id.label }}" method="post" novalidate >
+                {{ delete.hidden_tag() }}
+                {{ delete.submit() }}
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>
