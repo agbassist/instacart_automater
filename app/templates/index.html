@@ -2,7 +2,40 @@
 
 {% block content %}
 
-<a href="/recipes">Recipes</a>
-<a href="/ingredients">Ingredients</a>
+<div>
+    <b>Shopping List</b>
+    <form action="" method="post" novalidate >
+        {{ new_ingredient.hidden_tag() }}
+        <div>{{ new_ingredient.select() }}</div>
+        <div>Quantity: {{ new_ingredient.quantity(size=32) }}</div>
+        <div>Unit: {{ new_ingredient.unit(size=32) }}</div>
+        <div>{{ new_ingredient.submit() }}</div>
+    </form>
+    <table>
+        <tr>
+            <th>Ingredient</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+        </tr>
+        {% for ingredient in ingredients %}
+        <tr>
+            <td>{{ ingredient.name }}</td>
+            <td>{{ ingredient.quantity }}</td>
+            <td>{{ ingredient.unit }}</td>
+            <td>
+                <form action="/delete_selected_ingredient/id/{{ ingredient.id }}" method="post" novalidate >
+                    {{ delete.submit() }}
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<hr>
+
+<div>
+    <b>Recipes</b>
+</div>
 
 {% endblock %}

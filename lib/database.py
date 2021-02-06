@@ -32,7 +32,7 @@ sql_create_selected_recipes_table = """CREATE TABLE IF NOT EXISTS selected_recip
                                        FOREIGN KEY (recipe) references recipe (id)
                                     );"""
 
-sql_create_selected_ingredients_table = """CREATE TABLE IF NOT EXISTS selected_recipes (
+sql_create_selected_ingredients_table = """CREATE TABLE IF NOT EXISTS selected_ingredients (
                                            id         integer  NOT NULL PRIMARY KEY,
                                            ingredient integer  NOT NULL,
                                            quantity   integer,
@@ -40,7 +40,7 @@ sql_create_selected_ingredients_table = """CREATE TABLE IF NOT EXISTS selected_r
                                            FOREIGN KEY (ingredient) references ingredients (id)
                                         );"""                                
 
-class Database:
+class Database( object ):
 
     def __init__( self ):
         """ create a database connection to a SQLite database """
@@ -171,13 +171,37 @@ class Database:
     def create_selected_ingredients_table( self ):
         self.execute( sql_create_selected_ingredients_table )
 
-    def add_selected_ingredient( self, ingredient_id, quantity, unit ):
-        sql = ''' INSERT INTO selected_ingredients( id, quantity, unit )
+    def add_selected_ingredient( self, ingredient, quantity, unit ):
+        sql = ''' INSERT INTO selected_ingredients( ingredient, quantity, unit )
                   VALUES( ?, ?, ? ) '''
-        self.execute( sql, ( ingredient_id, quantity, unit ) )
+        self.execute( sql, ( ingredient, quantity, unit ) )
 
-    def remove_selected_ingredient( self, id ):
+    def delete_selected_ingredient( self, id ):
         self.execute( 'DELETE FROM selected_ingredients WHERE id={}'.format( id ) )
+
+    def get_all_selected_ingredients( self ):
+        sql = '''SELECT
+                 selected_ingredients.id,
+                 ingredients.name,
+                 selected_ingredients.quantity,
+                 selected_ingredients.unit
+
+                 FROM
+                 selected_ingredients
+
+                 INNER JOIN ingredients ON ingredients.id = selected_ingredients.ingredient'''
+
+        selected_ingredients = self.fetch( sql )
+        ret = []
+        for ingredient in selected_ingredients:
+            ingredient_dict = {}
+            ingredient_dict[ 'id' ] = ingredient[ 0 ]
+            ingredient_dict[ 'name' ] = ingredient[ 1 ]
+            ingredient_dict[ 'quantity' ] = ingredient[ 2 ]
+            ingredient_dict[ 'unit' ] = ingredient[ 3 ]
+            ret.append( ingredient_dict )
+        return ret
+        
 
 # Temporary stuff and testing
 if __name__ == '__main__':

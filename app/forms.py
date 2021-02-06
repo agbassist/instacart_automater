@@ -9,6 +9,12 @@ class new_ingredient_form( FlaskForm ):
     unit = StringField( 'Unit', validators=[DataRequired()] )
     submit = SubmitField( 'Add Ingredient' )
 
+class new_selected_ingredient_form( FlaskForm ):
+    select = SelectField( 'Ingredient' )
+    quantity = IntegerField( 'Quantity', validators=[DataRequired()] )
+    unit = StringField( 'Unit', validators=[DataRequired()] )
+    submit = SubmitField( 'Add Ingredient' )
+
 class delete_ingredient_form( FlaskForm ):
     submit = SubmitField( 'Delete' )
     recipe_id = HiddenField('Recipe_ID')

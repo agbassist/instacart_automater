@@ -1,14 +1,17 @@
 <html>
     <head>
       {% if title %}
-      <title>{{ title }} - Instacart Recipes</title>
+      <title>Auto-Insta-Cart: {{ title }}</title>
       {% else %}
-      <title>Welcome to Instacart Recipes</title>
+      <title>Auto-Insta-Cart</title>
       {% endif %}
       <link rel= "stylesheet" type= "text/css" href= "{{ url_for( 'static', filename='style.css' ) }}">
     </head>
     <body>
-        <div>Instacart Recipes: <a href="/index">Home</a></div>
+        <b>Auto-Insta-Cart</b>
+        <div><a href="/index">Home</a></div>
+        <div><a href="/recipes">Recipes</a></div>
+        <div><a href="/ingredients">Ingredients</a></div>
         <hr>
         {% block content %}{% endblock %}
     </body>
