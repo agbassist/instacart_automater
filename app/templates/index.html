@@ -23,7 +23,7 @@
             <td>{{ ingredient.quantity }}</td>
             <td>{{ ingredient.unit }}</td>
             <td>
-                <form action="/delete_selected_ingredient/id/{{ ingredient.id }}" method="post" novalidate >
+                <form action="/delete_selected_ingredient/id={{ ingredient.id }}" method="post" novalidate >
                     {{ delete.submit() }}
                 </form>
             </td>
@@ -36,6 +36,23 @@
 
 <div>
     <b>Recipes</b>
+    <form action="" method="post" novalidate >
+        {{ new_recipe.hidden_tag() }}
+        <div>{{ new_recipe.select() }}</div>
+        <div>{{ new_recipe.submit() }}</div>
+    </form>
+    <table>
+        {% for recipe in recipes %}
+        <tr>
+            <td><a href="/recipe/id={{ recipe.recipe_id }}">{{ recipe.name }}</a></td>
+            <td>
+                <form action="/delete_selected_recipe/id={{ recipe.id }}" method="post" novalidate >
+                    {{ delete.submit() }}
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 
 {% endblock %}

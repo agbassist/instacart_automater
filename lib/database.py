@@ -84,14 +84,30 @@ class Database( object ):
         self.execute( sql )
 
     def get_all_ingredients( self ):
-        return self.fetch( 'SELECT * FROM ingredients' )
+        ret = []
+        ingredients = self.fetch( 'SELECT * FROM ingredients' )
+
+        if ingredients is not None:
+            for ingredient in ingredients:
+                row = {}
+                row[ 'id' ] = ingredient[ 0 ]
+                row[ 'name' ] = ingredient[ 1 ]
+                row[ 'search' ] = ingredient[ 2 ]
+                row[ 'quantity' ] = ingredient[ 3 ]
+                row[ 'unit' ] = ingredient[ 4 ]
+                ret.append( row )
+
+        return ret
 
     def get_all_ingredient_names( self ):
         return self.fetch( 'SELECT id, name FROM ingredients' )
 
     def get_ingredient_id( self, ingredient ):
         ret = self.fetch( 'SELECT id FROM ingredients WHERE name="{}"'.format( ingredient ) )
-        return ret[0][0]
+        if ret is None:
+            return None
+        else:
+            return ret[ 0 ][ 0 ]
 
     def delete_ingredient_by_id( self, id ):
         self.execute( 'DELETE FROM ingredients WHERE id={}'.format( id ) )
@@ -109,15 +125,38 @@ class Database( object ):
         self.execute( sql, ( name, ) )
 
     def get_all_recipes( self ):
-        return self.fetch( 'SELECT * FROM recipes' )
+        ret = []
+        recipes = self.fetch( 'SELECT * FROM recipes' )
+        
+        if recipes is not None:
+            for recipe in recipes:
+                row = {}
+                row[ 'id' ] = recipe[ 0 ]
+                row[ 'name' ] = recipe[ 1 ]
+                ret.append( row )
+
+        return ret
+
+    def get_all_recipes_tuple_list( self ):
+        ret = []
+        for database_recipe in self.get_all_recipes():
+            ret.append( ( database_recipe[ 'id' ], database_recipe[ 'name' ] ) )
+
+        return ret
 
     def get_recipe_id( self, recipe ):
         ret = self.fetch( 'SELECT id FROM recipes WHERE name="{}"'.format( recipe ) )
-        return ret[0][0]
+        if ret is None:
+            return None
+        else:
+            return ret[ 0 ][ 0 ]
 
     def get_recipe_name( self, id ):
         ret = self.fetch( 'SELECT name FROM recipes WHERE id="{}"'.format( id ) )
-        return ret[0][0]
+        if ret is None:
+            return None
+        else:
+            return ret[ 0 ][ 0 ]
 
     #######################################################
     #                    Recipe Items
@@ -134,7 +173,7 @@ class Database( object ):
                   VALUES( ?, ?, ?, ? ) '''
         self.execute( sql, ( recipe, ingredient, quantity, unit ) )
 
-    def get_items_for_recipe( self, recipe_id ):
+    def get_ingredients_for_recipe( self, recipe_id ):
         sql = ''' SELECT
                   ingredients.name, recipe_items.quantity, recipe_items.unit, recipe_items.id
 
@@ -147,7 +186,18 @@ class Database( object ):
                   WHERE
                   recipes.id = "{}";'''.format( recipe_id )
 
-        return self.fetch( sql )
+        ret = []
+        ingredients = self.fetch( sql )
+
+        if ingredients is not None:
+            for ingredient in ingredients:
+                row = {}
+                row[ 'name' ] = ingredient[ 0 ]
+                row[ 'quantity' ] = ingredient[ 1 ]
+                row[ 'unit' ] = ingredient[ 2 ]
+                row[ 'id' ] = ingredient[ 3 ]
+
+        return ret
 
     #######################################################
     #                  Selected Recipes
@@ -157,12 +207,36 @@ class Database( object ):
         self.execute( sql_create_selected_recipes_table )
 
     def add_selected_recipe( self, recipe_id ):
-        sql = ''' INSERT INTO selected_recipes( id )
+        sql = ''' INSERT INTO selected_recipes( recipe )
                   VALUES( ? ) '''
         self.execute( sql, ( recipe_id, ) )
 
-    def remove_selected_recipe( self, id ):
+    def delete_selected_recipe( self, id ):
         self.execute( 'DELETE FROM selected_recipes WHERE id={}'.format( id ) )
+
+    def get_all_selected_recipes( self ):
+        sql = '''SELECT
+                 selected_recipes.id,
+                 recipes.name,
+                 recipes.id
+
+                 FROM
+                 selected_recipes
+
+                 INNER JOIN recipes on recipes.id = selected_recipes.recipe'''
+
+        ret = []
+        recipes = self.fetch( sql )
+
+        if recipes is not None:
+            for recipe in recipes:
+                recipe_dict = {}
+                recipe_dict[ 'id' ] = recipe[ 0 ]
+                recipe_dict[ 'name' ] = recipe[ 1 ]
+                recipe_dict[ 'recipe_id' ] = recipe[ 2 ]
+                ret.append( recipe_dict )
+
+        return ret
 
     #######################################################
     #                Selected Ingredients
@@ -200,8 +274,8 @@ class Database( object ):
             ingredient_dict[ 'quantity' ] = ingredient[ 2 ]
             ingredient_dict[ 'unit' ] = ingredient[ 3 ]
             ret.append( ingredient_dict )
-        return ret
-        
+
+        return ret  
 
 # Temporary stuff and testing
 if __name__ == '__main__':
