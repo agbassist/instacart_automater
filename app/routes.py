@@ -140,7 +140,7 @@ def recipe_id( id ):
         return redirect( '/recipe/id={}'.format( id ) ) 
 
     # Get ingredients for the recipe
-    ingredients = database.get_items_for_recipe( id )
+    ingredients = Database().get_ingredients_for_recipe( id )
 
     title = Database().get_recipe_name( id )
 

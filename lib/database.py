@@ -196,6 +196,7 @@ class Database( object ):
                 row[ 'quantity' ] = ingredient[ 1 ]
                 row[ 'unit' ] = ingredient[ 2 ]
                 row[ 'id' ] = ingredient[ 3 ]
+                ret.append( row )
 
         return ret
 
@@ -265,15 +266,17 @@ class Database( object ):
 
                  INNER JOIN ingredients ON ingredients.id = selected_ingredients.ingredient'''
 
-        selected_ingredients = self.fetch( sql )
+        ingredients = self.fetch( sql )
         ret = []
-        for ingredient in selected_ingredients:
-            ingredient_dict = {}
-            ingredient_dict[ 'id' ] = ingredient[ 0 ]
-            ingredient_dict[ 'name' ] = ingredient[ 1 ]
-            ingredient_dict[ 'quantity' ] = ingredient[ 2 ]
-            ingredient_dict[ 'unit' ] = ingredient[ 3 ]
-            ret.append( ingredient_dict )
+        
+        if ingredients is not None:
+            for ingredient in ingredients:
+                ingredient_dict = {}
+                ingredient_dict[ 'id' ] = ingredient[ 0 ]
+                ingredient_dict[ 'name' ] = ingredient[ 1 ]
+                ingredient_dict[ 'quantity' ] = ingredient[ 2 ]
+                ingredient_dict[ 'unit' ] = ingredient[ 3 ]
+                ret.append( ingredient_dict )
 
         return ret  
 
