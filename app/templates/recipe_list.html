@@ -2,6 +2,14 @@
 
 {% block content %}
 
+<div>
+    <form action="" method="post" novalidate >
+        {{ new_recipe.hidden_tag() }}
+        <div>Name: {{ new_recipe.name( size=32 ) }}</div>
+        <div>{{ new_recipe.submit() }}</div>
+    </form>
+</div>
+
 <table>
     <tr>
         <th>Recipes</th>
@@ -9,6 +17,11 @@
     {% for recipe in recipes %}
     <tr>
         <td><a href="/recipe/id={{ recipe.id }}">{{ recipe.name }}</a></td>
+        <td>
+            <form action="/delete_recipe/id={{ recipe.id }}" method="post" novalidate >
+                {{ delete.submit() }}
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>

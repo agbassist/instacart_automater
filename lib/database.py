@@ -111,6 +111,7 @@ class Database( object ):
 
     def delete_ingredient_by_id( self, id ):
         self.execute( 'DELETE FROM ingredients WHERE id={}'.format( id ) )
+        self.execute( 'DELETE FROM selected_ingredients WHERE ingredient={}'.format( id ) )
 
     #######################################################
     #                       Recipes
@@ -157,6 +158,11 @@ class Database( object ):
             return None
         else:
             return ret[ 0 ][ 0 ]
+
+    def delete_recipe( self, id ):
+        self.execute( 'DELETE FROM recipes WHERE id={}'.format( id ) )
+        self.execute( 'DELETE FROM recipe_items WHERE recipe={}'.format( id ) )
+        self.execute( 'DELETE FROM selected_recipes WHERE recipe={}'.format( id ) )
 
     #######################################################
     #                    Recipe Items
@@ -254,7 +260,7 @@ class Database( object ):
     def delete_selected_ingredient( self, id ):
         self.execute( 'DELETE FROM selected_ingredients WHERE id={}'.format( id ) )
 
-    def get_all_selected_ingredients( self ):
+    def get_all_selected_ingredients_with_names( self ):
         sql = '''SELECT
                  selected_ingredients.id,
                  ingredients.name,
@@ -279,6 +285,14 @@ class Database( object ):
                 ret.append( ingredient_dict )
 
         return ret  
+
+    #######################################################
+    #                Get Shopping List
+    #######################################################
+
+    def get_shopping_list( self ):
+        '''Returns a shopping list compatible with web_automater.py'''
+
 
 # Temporary stuff and testing
 if __name__ == '__main__':

@@ -3,16 +3,16 @@ from wtforms import StringField, IntegerField, SubmitField, SelectField, HiddenF
 from wtforms.validators import DataRequired
 
 class ingredient_form( FlaskForm ):
-    name = StringField( 'Name', validators=[DataRequired()] )
-    search = StringField( 'Search Term', validators=[DataRequired()] )
-    quantity = IntegerField( 'Quantity', validators=[DataRequired()] )
-    unit = StringField( 'Unit', validators=[DataRequired()] )
+    name = StringField( 'Name', validators=[ DataRequired() ] )
+    search = StringField( 'Search Term', validators=[ DataRequired() ] )
+    quantity = IntegerField( 'Quantity', validators=[ DataRequired() ] )
+    unit = StringField( 'Unit', validators=[ DataRequired() ] )
     submit = SubmitField( 'Add Ingredient' )
 
 class selected_ingredient_form( FlaskForm ):
     select = SelectField( 'Ingredient' )
-    quantity = IntegerField( 'Quantity', validators=[DataRequired()] )
-    unit = StringField( 'Unit', validators=[DataRequired()] )
+    quantity = IntegerField( 'Quantity', validators=[ DataRequired() ] )
+    unit = StringField( 'Unit', validators=[ DataRequired() ] )
     submit = SubmitField( 'Add Ingredient' )
 
 class selected_recipe_form( FlaskForm ):
@@ -25,7 +25,11 @@ class delete_form( FlaskForm ):
 
 class add_to_recipe_form( FlaskForm ):
     select = SelectField( 'Ingredient' )
-    quantity = IntegerField( 'Quantity', validators=[DataRequired()] )
-    unit = StringField( 'Unit', validators=[DataRequired()] )
+    quantity = IntegerField( 'Quantity', validators=[ DataRequired() ] )
+    unit = StringField( 'Unit', validators=[ DataRequired() ] )
     submit = SubmitField( 'Add Ingredient' )
+
+class add_recipe_form( FlaskForm ):
+    name = StringField( 'Name', validators=[ DataRequired() ] )
+    submit = SubmitField( 'Add Recipe' )
     

@@ -6,7 +6,8 @@ from app.forms import ingredient_form,          \
                       delete_form,              \
                       add_to_recipe_form,       \
                       selected_ingredient_form, \
-                      selected_recipe_form
+                      selected_recipe_form,     \
+                      add_recipe_form
 import os
 
 '''
@@ -26,6 +27,10 @@ def dated_url_for( endpoint, **values ):
             values['q'] = int( os.stat( file_path ).st_mtime )
     return url_for( endpoint, **values )
 
+#######################################################
+#                   Shopping List
+#######################################################
+
 @app.route( '/', methods=['GET', 'POST'] )
 @app.route( '/index', methods=['GET', 'POST'] )
 def index():
@@ -42,7 +47,7 @@ def index():
         return redirect( '/index' )
 
     # Get all ingredients from database
-    ingredients = Database().get_all_selected_ingredients()
+    ingredients = Database().get_all_selected_ingredients_with_names()
 
     # Delete an ingredient/recipe
     delete = delete_form()    
@@ -65,7 +70,25 @@ def index():
                             recipes=recipes,
                             delete=delete )
 
-@app.route( '/ingredients', methods=['GET', 'POST'] )
+@app.route( '/delete_selected_ingredient/id=<id>', methods=['POST'] )
+def delete_selected_ingredient( id ):
+    
+    Database().delete_selected_ingredient( id )
+    
+    return redirect( '/index' )
+
+@app.route( '/delete_selected_recipe/id=<id>', methods=['POST'] )
+def delete_selected_recipe( id ):
+    
+    Database().delete_selected_recipe( id )
+    
+    return redirect( '/index' )
+
+#######################################################
+#                   Ingredients
+#######################################################
+
+@app.route( '/ingredients', methods=[ 'GET', 'POST' ] )
 def ingredients():
 
     form = ingredient_form()
@@ -93,33 +116,27 @@ def delete_ingredient( id ):
     
     return redirect( '/ingredients' )
 
-@app.route( '/delete_selected_ingredient/id=<id>', methods=['POST'] )
-def delete_selected_ingredient( id ):
-    
-    Database().delete_selected_ingredient( id )
-    
-    return redirect( '/index' )
+#######################################################
+#                   Recipes
+#######################################################
 
-@app.route( '/delete_selected_recipe/id=<id>', methods=['POST'] )
-def delete_selected_recipe( id ):
-    
-    Database().delete_selected_recipe( id )
-    
-    return redirect( '/index' )
-
-@app.route( '/delete_recipe_item/id=<id>/recipe=<recipe_id>', methods=[ 'POST' ] )
-def delete_recipe_item( id, recipe_id ):
-    
-    Database().delete_recipe_item_by_id( id )
-    
-    return redirect( '/recipe/id/{}'.format( recipe_id ) )
-
-@app.route('/recipes')
+@app.route( '/recipes', methods=[ 'GET', 'POST' ] )
 def recipes():
+
+    new_recipe = add_recipe_form()
+    if new_recipe.validate_on_submit():
+        Database().add_recipe( new_recipe.data[ 'name' ] )
+        redirect( '/recipes' )
+
+    delete = delete_form()
 
     recipes = Database().get_all_recipes()
 
-    return render_template( 'recipe_list.html', title='Recipes', recipes=recipes )
+    return render_template( 'recipe_list.html',
+                            title='Recipes',
+                            recipes=recipes,
+                            new_recipe=new_recipe,
+                            delete=delete )
 
 @app.route( '/recipe/id=<id>', methods=[ 'GET', 'POST' ] )
 def recipe_id( id ):
@@ -149,4 +166,18 @@ def recipe_id( id ):
                             ingredients=ingredients,
                             new_ingredient=form,
                             delete=delete )
+
+@app.route( '/delete_recipe/id=<id>', methods=[ 'POST' ] )
+def delete_recipe( id ):
+    
+    Database().delete_recipe( id )
+    
+    return redirect( '/recipes' )
+
+@app.route( '/delete_recipe_item/id=<id>/recipe=<recipe_id>', methods=[ 'POST' ] )
+def delete_recipe_item( id, recipe_id ):
+    
+    Database().delete_recipe_item_by_id( id )
+    
+    return redirect( '/recipe/id/{}'.format( recipe_id ) )
     
