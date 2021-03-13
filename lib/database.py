@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import Error
+from lib.ingredient import Ingredient
 
 db_file = 'database/instacart.db'
 
@@ -48,7 +49,7 @@ class Database( object ):
         try:
             self.conn = sqlite3.connect(db_file)
         except Error as e:
-            print( e )
+            print( "ARG Error: " + e )
 
     def execute( self, sql_str, args=None ):
         """ commit data to database """
@@ -81,7 +82,7 @@ class Database( object ):
     def add_ingredient( self, name, search, quantity, unit ):
         sql = ''' INSERT INTO ingredients( name, search, quantity, unit )
                   VALUES( ?, ?, ?, ? ) '''
-        self.execute( sql )
+        self.execute( sql, ( name, search, quantity, unit ) )
 
     def get_all_ingredients( self ):
         ret = []
@@ -108,6 +109,20 @@ class Database( object ):
             return None
         else:
             return ret[ 0 ][ 0 ]
+
+    def get_ingredient_by_id( self, id ):
+        ingredient = self.fetch( 'SELECT * FROM ingredients WHERE id={}'.format( id ) )
+
+        if len( ingredient ) == 0:
+            assert False
+        else:
+            ret = {}
+            ret[ 'id' ] = ingredient[ 0 ][ 0 ]
+            ret[ 'name' ] = ingredient[ 0 ][ 1 ]
+            ret[ 'search' ] = ingredient[ 0 ][ 2 ]
+            ret[ 'quantity' ] = ingredient[ 0 ][ 3 ]
+            ret[ 'unit' ] = ingredient[ 0 ][ 4 ]
+            return ret 
 
     def delete_ingredient_by_id( self, id ):
         self.execute( 'DELETE FROM ingredients WHERE id={}'.format( id ) )
@@ -181,7 +196,7 @@ class Database( object ):
 
     def get_ingredients_for_recipe( self, recipe_id ):
         sql = ''' SELECT
-                  ingredients.name, recipe_items.quantity, recipe_items.unit, recipe_items.id
+                  ingredients.name, recipe_items.quantity, recipe_items.unit, ingredients.id
 
                   FROM
                   recipe_items
@@ -260,10 +275,11 @@ class Database( object ):
     def delete_selected_ingredient( self, id ):
         self.execute( 'DELETE FROM selected_ingredients WHERE id={}'.format( id ) )
 
-    def get_all_selected_ingredients_with_names( self ):
+    def get_all_selected_ingredients( self ):
         sql = '''SELECT
-                 selected_ingredients.id,
+                 ingredients.id,
                  ingredients.name,
+                 ingredients.search,
                  selected_ingredients.quantity,
                  selected_ingredients.unit
 
@@ -280,11 +296,12 @@ class Database( object ):
                 ingredient_dict = {}
                 ingredient_dict[ 'id' ] = ingredient[ 0 ]
                 ingredient_dict[ 'name' ] = ingredient[ 1 ]
-                ingredient_dict[ 'quantity' ] = ingredient[ 2 ]
-                ingredient_dict[ 'unit' ] = ingredient[ 3 ]
+                ingredient_dict[ 'search' ] = ingredient[ 2 ]
+                ingredient_dict[ 'quantity' ] = ingredient[ 3 ]
+                ingredient_dict[ 'unit' ] = ingredient[ 4 ]
                 ret.append( ingredient_dict )
 
-        return ret  
+        return ret 
 
     #######################################################
     #                Get Shopping List
@@ -293,10 +310,34 @@ class Database( object ):
     def get_shopping_list( self ):
         '''Returns a shopping list compatible with web_automater.py'''
 
+        all_ingredients = []
+        all_ingredients += self.get_all_selected_ingredients()
+        all_ingredients += [ ingredient 
+                             for recipe in self.get_all_selected_recipes()
+                             for ingredient in self.get_ingredients_for_recipe( recipe[ 'recipe_id' ] ) ]
+
+        shopping_list_dict = {}
+        for ingredient in all_ingredients:
+            if shopping_list_dict.get( ingredient[ 'id' ] ) is None:
+                shopping_list_dict[ ingredient[ 'id' ] ] = ingredient[ 'quantity' ]
+            else:
+                shopping_list_dict[ ingredient[ 'id' ] ] += ingredient[ 'quantity' ]
+
+        shopping_list = []
+        for id, quantity in shopping_list_dict.items():
+            db_ingredient = self.get_ingredient_by_id( id )
+
+            shopping_item = Ingredient( db_ingredient[ 'search' ] )
+            buy_quantity = int( db_ingredient[ 'quantity' ] // quantity )
+            if db_ingredient[ 'quantity' ] % quantity > 0:
+                quantity = quantity + 1
+            shopping_item.add( buy_quantity )
+            shopping_list.append( shopping_item )
+
+        return shopping_list
 
 # Temporary stuff and testing
 if __name__ == '__main__':
 
-    database = Database()
-    database.create_selected_recipes_table()
-    database.create_selected_ingredients_table()
+    ingredients = Database().get_all_selected_ingredients()
+    i = 1

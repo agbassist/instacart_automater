@@ -17,7 +17,7 @@
             <th>Quantity</th>
             <th>Unit</th>
         </tr>
-        {% for ingredient in ingredients %}
+        {% for ingredient in selected_ingredients %}
         <tr>
             <td>{{ ingredient.name }}</td>
             <td>{{ ingredient.quantity }}</td>
@@ -42,7 +42,7 @@
         <div>{{ new_recipe.submit() }}</div>
     </form>
     <table>
-        {% for recipe in recipes %}
+        {% for recipe in selected_recipes %}
         <tr>
             <td><a href="/recipe/id={{ recipe.recipe_id }}">{{ recipe.name }}</a></td>
             <td>
@@ -53,6 +53,15 @@
         </tr>
         {% endfor %}
     </table>
+</div>
+
+<hr>
+
+<div>
+    <form action="" method="post" novalidate >
+        {{ go.hidden_tag() }}
+        <div>{{ go.go() }}</div>
+    </form>
 </div>
 
 {% endblock %}

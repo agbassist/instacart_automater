@@ -33,9 +33,6 @@ def build_cart( shopping_list ):
     browser.implicitly_wait( 30 )
     browser.get( 'https://www.instacart.com/store/home' )
 
-    # Set explicit wait time
-    wait = WebDriverWait( browser, 60 )
-
     # Log in
     browser.find_element_by_xpath( '//button[text()="Log in"]' ).click()
     browser.find_element_by_xpath(
@@ -57,6 +54,7 @@ def build_cart( shopping_list ):
         '//span[text()="Next"]/parent::button' ).click()
 
     # Enter Password
+    wait = WebDriverWait( browser, 60 )
     password_input = wait.until( EC.element_to_be_clickable( ( By.XPATH, '//input[@type="password"]' ) ) )
     password_input.send_keys( password )
 
@@ -79,4 +77,16 @@ def build_cart( shopping_list ):
         remove_button.click()
 
     for item in shopping_list:
-        search_for_item( browser, item.name, item.quantity )
+        try:
+            search_for_item( browser, item.name, item.quantity )
+        except:
+            print( item.name + " was not found." )
+            continue
+
+    # Wait for the page to be manually closed by the user
+    while True:
+        try:
+            browser.get_window_position()
+            continue
+        except:
+            break

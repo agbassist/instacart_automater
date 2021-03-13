@@ -7,7 +7,10 @@ from app.forms import ingredient_form,          \
                       add_to_recipe_form,       \
                       selected_ingredient_form, \
                       selected_recipe_form,     \
-                      add_recipe_form
+                      add_recipe_form,          \
+                      go_form 
+from lib import web_automater
+
 import os
 
 '''
@@ -47,7 +50,7 @@ def index():
         return redirect( '/index' )
 
     # Get all ingredients from database
-    ingredients = Database().get_all_selected_ingredients_with_names()
+    selected_ingredients = Database().get_all_selected_ingredients()
 
     # Delete an ingredient/recipe
     delete = delete_form()    
@@ -58,17 +61,25 @@ def index():
                               + Database().get_all_recipes_tuple_list()
     if new_recipe.validate_on_submit():
         Database().add_selected_recipe( int( new_recipe.data[ 'select' ] ) )
-        redirect( '/index' )
+        return redirect( '/index' )
 
     # Get all recipes from database
-    recipes = Database().get_all_selected_recipes()
+    selected_recipes = Database().get_all_selected_recipes()
+
+    # Run the web automater
+    go = go_form()
+    if go.validate_on_submit():
+        shopping_list = Database().get_shopping_list()
+        web_automater.build_cart( shopping_list )
+        return redirect( '/index' )
 
     return render_template( 'index.html',
                             new_ingredient=new_ingredient,
-                            ingredients=ingredients,
+                            selected_ingredients=selected_ingredients,
                             new_recipe=new_recipe,
-                            recipes=recipes,
-                            delete=delete )
+                            selected_recipes=selected_recipes,
+                            delete=delete,
+                            go=go )
 
 @app.route( '/delete_selected_ingredient/id=<id>', methods=['POST'] )
 def delete_selected_ingredient( id ):

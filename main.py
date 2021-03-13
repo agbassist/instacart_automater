@@ -16,6 +16,3 @@ if len(new_items) > 0:
 shopping_list = sheet_reader.get_shopping_list()
 
 web_automater.build_cart(shopping_list)
-
-# For a breakpoint
-i = 1

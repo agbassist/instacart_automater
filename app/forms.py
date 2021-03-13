@@ -23,6 +23,9 @@ class delete_form( FlaskForm ):
     submit = SubmitField( 'Delete' )
     id = HiddenField('hidden_id')
 
+class go_form( FlaskForm ):
+    go = SubmitField( 'Go!' )
+
 class add_to_recipe_form( FlaskForm ):
     select = SelectField( 'Ingredient' )
     quantity = IntegerField( 'Quantity', validators=[ DataRequired() ] )
