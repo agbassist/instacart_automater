@@ -281,7 +281,8 @@ class Database( object ):
                  ingredients.name,
                  ingredients.search,
                  selected_ingredients.quantity,
-                 selected_ingredients.unit
+                 selected_ingredients.unit,
+                 selected_ingredients.id
 
                  FROM
                  selected_ingredients
@@ -299,6 +300,7 @@ class Database( object ):
                 ingredient_dict[ 'search' ] = ingredient[ 2 ]
                 ingredient_dict[ 'quantity' ] = ingredient[ 3 ]
                 ingredient_dict[ 'unit' ] = ingredient[ 4 ]
+                ingredient_dict[ 'selected_id' ] = ingredient[ 5 ]
                 ret.append( ingredient_dict )
 
         return ret 
